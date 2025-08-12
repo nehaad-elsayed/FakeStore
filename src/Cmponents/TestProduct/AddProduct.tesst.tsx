@@ -1,3 +1,9 @@
+import { useForm } from "react-hook-form";
+import type { Product } from "../../interfaces/productsInterfaces";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import {
   VStack,
   Box,
@@ -8,18 +14,8 @@ import {
   HStack,
   Spinner,
 } from "@chakra-ui/react";
-
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import axios from "axios";
-import type { Product } from "../../interfaces/productsInterfaces";
-import toast from "react-hot-toast";
-
-export default function AddProduct() {
+export default function AddProductTest() {
   const queryClient = useQueryClient();
-  //عشان اعمل استدعاء لل invalidateQueries // اللي جواها الكي بتاع البرودكتس عشان احدث اليو اي
-
-  //الفانكشن اللي بتكول ال Api
   const addProduct = async (product: Partial<Product>): Promise<Product> => {
     const response = await axios.post(
       "https://fakestoreapi.com/products",
@@ -28,49 +24,34 @@ export default function AddProduct() {
     return response.data;
   };
 
-  const defaultValues: Partial<Product> = {
-    title: "",
-    price: 0,
-    description: "",
-    category: "",
-    image: "",
-  };
+const defaultValues: Partial<Product> = {
+  title: "",
+  price: 0,
+  description: "",
+  image: "",
+  category: "",
+};
+ const{handleSubmit,formState: {errors, isSubmitting},reset,register}=useForm({defaultValues,})
 
-  const {register,handleSubmit,formState: { errors, isSubmitting },reset,} = useForm({
-    defaultValues,
-  });
+ function onSuccess(data: Partial<Product>) {
+  queryClient.invalidateQueries({queryKey:["products"]})
+  toast.success(`Product "${data.title}" has been added successfully!`)
+  reset();
+ }
+const mutation=useMutation({
+  mutationFn:addProduct,
+  onSuccess,
+})
+const onSubmit=(data:Partial<Product>)=>{
+  mutation.mutate(data)
+}
 
-  function onSuccess(data: Partial<Product>) {
-    queryClient.invalidateQueries({ queryKey: ["products"] });
-    toast.success(`Product "${data.title}" has been added successfully!`);
-    reset();
-  } // من باب التنظيم بس فصلنا الفانكشن دي// بقوله هنا لو العمليه نجحت حدثلي اليو اي
-
-  const mutation = useMutation({
-    mutationFn: addProduct,
-    onSuccess,
-    onError: (error: unknown) => {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to add product. Please try again.";
-      toast.error(`Error: ${errorMessage}`);
-    },
-  });
-
-  const onSubmit = (data: Partial<Product>) => {
-    mutation.mutate(data);
-  };
-
-  const categories = [
-    "men's clothing",
-    "women's clothing",
-    "jewelery",
-    "electronics",
-  ];
+const categories=["electronics","jewelery","men's clothing","women's clothing"]
 
   return (
-    <Container maxW="container.md" py={8}>
+   <>
+   
+   <Container maxW="container.md" py={8}>
       <VStack gap={8} align="stretch">
         <Box textAlign="center">
           <Heading as="h1" size="2xl" mb={4}>
@@ -100,7 +81,7 @@ export default function AddProduct() {
                     value: 3,
                     message: "Title must be at least 3 characters",
                   },
-                })}
+                })} 
                 type="text"
                 placeholder="Enter product title"
                 style={{
@@ -272,5 +253,6 @@ export default function AddProduct() {
         </Box>
       </VStack>
     </Container>
-  );
+   </>
+  )
 }

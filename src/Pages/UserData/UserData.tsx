@@ -37,6 +37,8 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import type { Result } from "../../interfaces/userInterfaces";
 const API_URL = "https://randomuser.me/api/?results=3";
+import LoadingSpinner from "../../Cmponents/LoadingSpinner/LoadingSpinner";
+
 
 export default function UserData() {
   const getUsers = async () => {
@@ -65,7 +67,7 @@ export default function UserData() {
 
   return (
     <div>
-      {isLoading && <p>Loading...</p>}
+      {isLoading && <LoadingSpinner fullScreen={true} />}
       {isError && <p style={{ color: "red" }}>{error.message}</p>}
       {data &&
         data.map((user: Result) => (

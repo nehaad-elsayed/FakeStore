@@ -8,11 +8,11 @@ import {
   SimpleGrid,
   VStack,
   HStack,
-  Spinner,
   Badge,
 } from "@chakra-ui/react";
 import axios from "axios";
 import type { Product } from "../../interfaces/productsInterfaces";
+import LoadingSpinner from "../../Cmponents/LoadingSpinner/LoadingSpinner";
 
 export default function Products() {
   const [sort, setSort] = useState<string>("default");
@@ -58,19 +58,7 @@ export default function Products() {
     : [];
 
   if (isLoading) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-      >
-        <VStack gap={4}>
-          <Spinner size="xl" color="blue.500" />
-          <Text>Loading products...</Text>
-        </VStack>
-      </Box>
-    );
+    return <LoadingSpinner fullScreen={true} />;
   }
 
   if (error) {
